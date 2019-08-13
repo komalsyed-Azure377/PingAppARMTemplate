@@ -1,0 +1,375 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "siteName": {
+        "type": "string",
+        "defaultValue": "AirJaldi-PingInstructionSite"
+      },
+      "hostingPlanName": {
+        "type": "string",
+        "defaultValue": "AirJaldiHostingPlan"
+      },
+      "siteLocation": {
+        "type": "string"
+      },
+      "projectName":{
+        "type": "string",
+        "metadata": {
+          "description": "Specifies a Event Hub name that is used to generate the Event Hub name and the Namespace name."
+        }
+      },
+      "location": {
+        "type": "string",
+        "allowedValues": [
+          "australiacentral", 
+          "australiaeast", 
+          "australiasoutheast", 
+          "brazilsouth",
+          "canadacentral", 
+          "centralindia", 
+          "centralus", 
+          "eastasia", 
+          "eastus", 
+          "eastus2", 
+          "francecentral", 
+          "japaneast", 
+          "koreacentral", 
+          "northcentralus", 
+          "northeurope", 
+          "southafricanorth", 
+          "southcentralus", 
+          "southeastasia", 
+          "uksouth", 
+          "ukwest", 
+          "westcentralus", 
+          "westeurope", 
+          "westus", 
+          "westus2"
+        ],
+        "defaultValue": "Standard",
+        "metadata": {
+          "description": "Specifies the location in which to create the workspace."
+        }
+      },    
+      "repoUrl": {
+        "type": "string"
+      },
+      "branch": {
+        "type": "string"
+      }
+    },
+    "variables": {
+      "eventHubNamespaceName": "[concat(parameters('projectName'), 'ns')]",
+      "eventHubName": "[parameters('projectName')]",
+      "workspaceName": "[concat(toLower(parameters('projectName')),'LogAnalyticsns', uniqueString(resourceGroup().id))]",
+      "logicAppName": "[concat( toLower(parameters('projectName')), 'LogicApp',uniqueString(resourceGroup().id))]",
+      "eventHubNameFinal": "[concat(variables('eventHubNamespaceName'), '/', parameters('projectName'))]",
+      "subscriptionId":"[subscription().subscriptionId]",
+      "resourceGroupName":"[resourceGroup().Name]",
+      "someAppSetting": "Test app setting",
+      "sku": "Free",
+      "workerSize":"0",
+      "testUri": "http://azure.microsoft.com/en-us/status/feed/",
+      "eventHubSku":"Standard",
+      "connections_azureloganalyticsdatacollector_name":"azureloganalyticsdatacollector",
+      "connections_eventhubs_name":"eventhubs",
+      "path":"[concat('/', uriComponent(toLower(parameters('projectName'))) , '/events/batch/head')]",
+      "connections_eventhubs_nameF": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/',  variables('resourceGroupName'), '/providers/Microsoft.Web/connections/eventhubs')]",
+      "connections_azureloganalyticsdatacollector_nameF":"[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/',  variables('resourceGroupName'), '/providers/Microsoft.Web/connections/azureloganalyticsdatacollector')]",
+      "connections_eventhubs_2_externalid": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/',  variables('resourceGroupName'), '/providers/Microsoft.Web/connections/eventhubs')]",
+      "connections_azureloganalyticsdatacollector_externalid":"[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/',  variables('resourceGroupName'), '/providers/Microsoft.Web/connections/azureloganalyticsdatacollector')]"
+    },
+    "functions": [
+      {
+        "namespace": "logicappnamefunc",
+        "members": {
+          "uniqueName": {
+            "parameters": [
+              {
+                "name": "namePrefix",
+                "type": "string"
+              }
+            ],
+            "output": {
+              "type": "string",
+              "value": "[concat(toLower(parameters('projectName')),'LogicApp', uniqueString(resourceGroup().id))]"
+            }
+          }
+        }
+      },
+      {
+        "namespace": "loganalyticsnsfunc",
+        "members": {
+          "uniqueName": {
+            "parameters": [
+              {
+                "name": "namePrefix",
+                "type": "string"
+              }
+            ],
+            "output": {
+              "type": "string",
+              "value": "[concat(toLower(parameters('projectName')),'LogAnalyticsns', uniqueString(resourceGroup().id))]"
+            }
+          }
+        }
+      }
+    ],
+    "resources": [
+      
+      {
+        "apiVersion": "2017-04-01",
+        "type": "Microsoft.EventHub/namespaces",
+        "name": "[variables('eventHubNamespaceName')]",
+        "location": "[parameters('location')]",
+        "sku": {
+          "name": "[variables('eventHubSku')]",
+          "tier": "[variables('eventHubSku')]",
+          "capacity": 1
+        },
+        "properties": {
+          "isAutoInflateEnabled": false,
+          "maximumThroughputUnits": 0
+        }
+      },
+      {
+        "apiVersion": "2017-04-01",
+        "type": "Microsoft.EventHub/namespaces/eventhubs",
+        "name": "[concat(variables('eventHubNamespaceName'), '/', variables('eventHubName'))]",
+        "location":"[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubNamespaceName'))]"
+        ],
+        "tags": {
+          "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "empty"
+        },
+        "properties": {
+          "messageRetentionInDays": 7,
+          "partitionCount": 1
+        }
+      },
+      {
+        "type": "Microsoft.OperationalInsights/workspaces",
+        "name": "[variables('workspaceName')]",
+        "apiVersion": "2015-11-01-preview",
+        "location": "[parameters('location')]",
+        "properties": {
+         
+            "features": {
+                "searchVersion": 1
+
+            }
+        }
+      },
+  
+      {
+        "type": "Microsoft.Web/connections",
+        "apiVersion": "2016-06-01",
+        "name": "[variables('connections_azureloganalyticsdatacollector_name')]",
+        "location":"[parameters('location')]",
+        "dependsOn": [
+          "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]"
+        ],
+        "properties": {
+            "displayName": "azuredatacollectortemplate",
+          
+            "customParameterValues": {
+            },
+            "api": {
+              "id": "[concat('/subscriptions/', variables('subscriptionId'), '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/' , variables('connections_azureloganalyticsdatacollector_name'))]"
+             },
+            "parameterValues": { 
+
+              
+
+            }
+
+        }
+      },
+      {
+        "type": "Microsoft.Web/connections",
+        "apiVersion": "2016-06-01",
+        "name": "[variables('connections_eventhubs_name')]", 
+        "location":"[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubNamespaceName'))]",
+          "[resourceId('Microsoft.EventHub/Namespaces/EventHubs', variables('eventHubNamespaceName'), variables('eventHubName'))]"
+        ],
+        "properties": {
+            "displayName": "templatetestlogicappeventhubconn",
+            "customParameterValues": {},
+            "api": {
+              "id": "[concat('/subscriptions/', variables('subscriptionId'), '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/', variables('connections_eventhubs_name'))]"
+            },
+            "parameterValues": { 
+              "connectionString": "[listKeys(resourceId('Microsoft.EventHub/namespaces/authorizationRules', variables('eventHubNamespaceName'), 'RootManageSharedAccessKey'), '2017-04-01').primaryConnectionString]"
+             
+            }
+        }
+      },
+      {
+        "type": "Microsoft.Logic/workflows",
+        "apiVersion": "2016-06-01",
+        "name": "[variables('logicAppName')]",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]",
+          "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubNamespaceName'))]",
+          "[resourceId('Microsoft.EventHub/Namespaces/EventHubs', variables('eventHubNamespaceName'), variables('eventHubName'))]"
+        ],
+        "tags": {
+          "displayName": "LogicApp"
+        },
+        "properties": {
+          "state": "Enabled",
+          "definition": {
+              "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                  "testUri": {
+                    "type": "string",
+                    "defaultValue": "[variables('testUri')]"
+                  },
+                  "$connections": {
+                    "defaultValue": {},
+                    "type": "Object"
+                }
+              },
+              "triggers": {
+                "When_events_are_available_in_Event_Hub": {
+                    "recurrence": {
+                        "frequency": "Minute",
+                        "interval": 1
+                    },
+                    "splitOn": "@triggerBody()",
+                    "type": "ApiConnection",
+                    "inputs": {
+                        "host": {
+                            "connection": {
+                                "name": "@parameters('$connections')['templatetestlogicappeventhubconn']['connectionId']"
+                            }
+                        },
+                        "method": "get",
+                        "path": "[variables('path')]",
+                        "queries": {
+                            "consumerGroupName": "$Default",
+                            "contentType": "application/json",
+                            "maximumEventsCount": 100
+                        }
+                    }
+                }
+            },
+            "actions": {
+              "Compose": {
+                  "runAfter": {},
+                  "type": "Compose",
+                  "inputs": "@triggerBody()?['ContentData']"
+              },
+              "Send_Data": {
+                  "runAfter": {
+                      "Compose": [
+                          "Succeeded"
+                      ]
+                  },
+                  "type": "ApiConnection",
+                  "inputs": {
+                      "body": "@{outputs('Compose')}",
+                      "headers": {
+                          "Log-Type": "AirJaldiPingEventsLog"
+                      },
+                      "host": {
+                          "connection": {
+                              "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                          }
+                      },
+                      "method": "post",
+                      "path": "/api/logs"
+                  }
+              }
+            },
+            "outputs": {}
+          },
+          "parameters": {
+              "$connections": {
+                "value": {
+                    "azureloganalyticsdatacollector": {
+                      "connectionId": "[variables('connections_azureloganalyticsdatacollector_nameF')]",
+                      "connectionName": "azureloganalyticsdatacollector",
+                      "id": "[concat('/subscriptions/', variables('subscriptionId'), '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/azureloganalyticsdatacollector')]"
+                    
+                    },
+                  "templatetestlogicappeventhubconn": {
+                      "connectionId": "[variables('connections_eventhubs_nameF')]",
+                      "connectionName": "eventhubs",
+                      "id": "[concat('/subscriptions/', variables('subscriptionId'), '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/eventhubs')]"
+                  }
+  
+                }
+            }
+          }
+        }
+      },
+      {
+        "apiVersion": "2014-06-01",
+        "name": "[parameters('hostingPlanName')]",
+        "type": "Microsoft.Web/serverFarms",
+        "location": "[parameters('siteLocation')]",
+        "properties": {
+          "name": "[parameters('hostingPlanName')]",
+          "sku": "[variables('sku')]",
+          "workerSize": "[variables('workerSize')]",
+          "numberOfWorkers": 1
+        }
+      },
+      { 
+        "apiVersion": "2014-06-01",
+        "name": "[parameters('siteName')]",
+        "type": "Microsoft.Web/Sites",
+        "location": "[parameters('siteLocation')]",
+        "dependsOn": [
+          "[concat('Microsoft.Web/serverFarms/', parameters('hostingPlanName'))]"
+        ],
+        "tags": {
+          "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "empty"
+        },
+        "properties": {
+          "name": "[parameters('siteName')]",
+          "serverFarm": "[parameters('hostingPlanName')]"
+        },
+        "resources": [
+          {
+            "apiVersion": "2014-04-01",
+            "type": "config",
+            "name": "web",
+            "dependsOn": [
+              "[concat('Microsoft.Web/Sites/', parameters('siteName'))]"
+            ],
+            "properties": {
+              "appSettings": [
+                {
+                  "name": "someAppSetting",
+                  "value": "[variables('someAppSetting')]"
+                }
+              ]
+            }
+          },
+          {
+            "apiVersion": "2014-04-01",
+            "name": "web",
+            "type": "sourcecontrols",
+            "dependsOn": [
+              "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]",
+              "[concat('Microsoft.Web/Sites/', parameters('siteName'), '/config/web')]"
+            ],
+            "properties": {
+              "RepoUrl": "[parameters('repoUrl')]",
+              "branch": "[parameters('branch')]",
+              "IsManualIntegration": true
+            }
+          }
+        ]
+      }
+
+    ]
+}

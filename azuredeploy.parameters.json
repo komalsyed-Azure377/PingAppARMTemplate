@@ -1,0 +1,54 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "siteName": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "hostingPlanName": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "siteLocation": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "sku": {
+            "value": "Free"
+        },
+        "workerSize": {
+            "value": "0"
+        },
+        "someAppSetting": {
+            "value": "Test App Setting Value"
+        },
+        "projectName": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "workspaceName": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "location": {
+            "value": "Standard"
+        },
+        "eventHubSku": {
+            "value": "Standard"
+        },
+        "logicAppName": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "testUri": {
+            "value": "http://azure.microsoft.com/en-us/status/feed/"
+        },
+        "connections_azureloganalyticsdatacollector_name": {
+            "value": "azureloganalyticsdatacollector"
+        },
+        "connections_eventhubs_name": {
+            "value": "eventhubs"
+        },
+        "repoUrl": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "branch": {
+            "value": "## TO BE DEFINED ##"
+        }
+    }
+}
