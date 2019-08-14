@@ -180,9 +180,6 @@
               "id": "[concat('/subscriptions/', variables('subscriptionId'), '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/' , variables('connections_azureloganalyticsdatacollector_name'))]"
              },
             "parameterValues": { 
-
-              
-
             }
 
         }
@@ -214,6 +211,9 @@
         "name": "[variables('logicAppName')]",
         "location": "[parameters('location')]",
         "dependsOn": [
+
+          "[resourceId('Microsoft.Web/connections', variables('connections_azureloganalyticsdatacollector_name'))]",
+          "[resourceId('Microsoft.Web/connections', variables('connections_eventhubs_name'))]",
           "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]",
           "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubNamespaceName'))]",
           "[resourceId('Microsoft.EventHub/Namespaces/EventHubs', variables('eventHubNamespaceName'), variables('eventHubName'))]"
