@@ -6,6 +6,7 @@ This repo contains all the ARM Templates for all the resources required to deplo
 <a href="https://azuredeploy.net/" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>
 
 <b>Step 1:</b> Click on the <b>'Deploy to Azure'</b> button </br>
+
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/0.png">
 <b>Step 2:</b> Fill template form as shown below, click <b>'Next' </b>button </br>
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/1.png">
@@ -20,8 +21,8 @@ click on advanced settings for the log analytics workspace and copy the Workspac
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/5.5.png">
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/6.png">
 <b>Step 7:</b> Open up the API connection for Log Analytics workspace as shown below and paste the information copied in previous step </br>
-Click on Edit API connection and fill out the Workspace ID and Primary key as shown below and click <b>Save</b> </br>
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/7.png">
+Click on Edit API connection and fill out the Workspace ID and Primary key as shown below and click <b>Save</b> </br>
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/6.5.png">
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/7.5.png">
 <b>Your system is ready to be used! </b>
