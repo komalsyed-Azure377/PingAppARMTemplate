@@ -5,7 +5,7 @@ This repo contains the ARM Template for all the resources required for the PingC
 
 <a href="https://azuredeploy.net/" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>
 
-# Deploy Instructions
+# Deployment Steps
 <b>Step 1:</b> Click on the <b>'Deploy to Azure'</b> button </br>
 
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/0.png">
