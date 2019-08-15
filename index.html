@@ -1,8 +1,20 @@
-Ping Application ARM Templates
+Ping Application ARM Template Instruction Site
 </br>
 
-1. Open the new Log Analytics Workspace created by the ARM Template deployment and copy the 'Workspace ID & Primary Key'
+
+<b>Step 1:</b> Login to Azure portal to view the newly created resources </br>
+<img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/5.png">
+<b>Step 2:</b> For now the Log Analytics connector is in (preview) mode therefore you will need to fill out the connection info manually. </br> Click on advanced settings for the log analytics workspace and copy the Workspace ID and Primary key 
+Open the new Log Analytics Workspace created by the ARM Template deployment and copy the 'Workspace ID & Primary Key', the following walks you through how to do it:
  on to the API connection parameters called 'azureloganalyticsdatacollector'
-</br>
-2. Your Logic App and rest of the instances are all set, ready to be used.
-</br>
+<img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/5.5.png">
+Copy the Workspace ID and Primary key in a seperate file or notepad as you will need it for the next step
+<img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/6.png">
+<b>Step 3:</b> Open up the API connection for Log Analytics workspace as shown below and paste the information copied in previous step </br>
+<img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/7.png">
+<b>Step 4:</b> Click on Edit API connection 
+<img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/6.5.png">
+<b>Step 5:</b> Fill out the Workspace ID and Primary key as shown below and click on <b>Save</b> button </br>
+<img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/7.5.png">
+<b>Your system is ready to be used! </b>
+
