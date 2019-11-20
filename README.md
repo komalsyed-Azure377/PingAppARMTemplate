@@ -105,11 +105,9 @@ $ echo "deb https://raw.githubusercontent.com/komalsyed-Azure377/pingasynctool/m
 $ sudo apt-get update</br>
 $ sudo apt-get install pingasync</br>
 $ export PING_HOME=/opt/ksyed/pingtool/PingAsync.dll</br>
+</b>
 <b> At this stage the Ping Utilty is installed in your system ready to be used! </b></br>
-
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/26.png" >
-
-
 
 <b>Step 25:</b> Changing the configuration for the PingUtilty is shown below - we will require all the information copied seperately in the previous steps. In order to change the configuration for the Ping Utility being run navigate to the <b>appsettings.json</b> file by writing the command '<b>cd /opt/ksyed/pingtool</b>' in the same session above and then type the command  <b>sudo vim appsettings.json</b> will open the configuration file for you to change various parameters as shown below</br>
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/27.png" >
