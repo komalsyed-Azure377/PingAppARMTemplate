@@ -52,6 +52,21 @@
           "description": "Specifies the location in which to create the workspace."
         }
       },    
+      "keyVaultName": {
+        "type": "string",
+        "metadata": {
+            "description": "Specifies the name of the key vault which must be between 3-24 alphanumeric characters. The name must begin with a letter, end with a letter or digit, and not contain consecutive hyphens"
+        }
+      },
+
+    "objectId": {
+      "type": "string",
+      "metadata": {
+          "description": "Specifies the object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies. Get it by using Get-AzADUser or Get-AzADServicePrincipal cmdlets."
+       }
+      },
+     
+   
       "repoUrl": {
         "type": "string"
       },
@@ -62,13 +77,26 @@
     "variables": {
       "eventHubNamespaceName": "[concat(parameters('projectName'), 'ns')]",
       "eventHubName": "[parameters('projectName')]",
-      "workspaceName": "[concat(toLower(parameters('projectName')),'LogAnalyticsns', uniqueString(resourceGroup().id))]",
-      "logicAppName": "[concat( toLower(parameters('projectName')), 'LogicApp',uniqueString(resourceGroup().id))]",
+      "storageacountname": "[concat('storage', uniqueString(resourceGroup().id))]",
+      "siteName":"[concat('InstructionSite', uniqueString(resourceGroup().id))]",     
+      "containerName":"pingipfiles",
+      "containerNameTwo":"pingipfilestest",
+      "workspaceName": "[concat('LogAnalyticsns', uniqueString(resourceGroup().id))]",
+      "logicAppName": "[concat('LogicApp',uniqueString(resourceGroup().id))]",
       "eventHubNameFinal": "[concat(variables('eventHubNamespaceName'), '/', parameters('projectName'))]",
       "subscriptionId":"[subscription().subscriptionId]",
+      "tenantId":"[subscription().tenantId]",
+      "enabledForDeployment":true,
+      "secretName":"eventhubconnString",
+      "secretNameTwo":"blobStorageAccountPrimaryKey",
+      "enabledForDiskEncryption":true,
+      "enabledForTemplateDeployment":true,
+      "keysPermissions":["Get","List","Update","Create","Import","Delete","Recover","Backup","Restore","Decrypt","Encrypt","UnwrapKey","WrapKey","Verify","Sign","Purge"],
+      "secretsPermissions":["Get","List","Set","Delete","Backup","Restore","Recover"],
       "resourceGroupName":"[resourceGroup().Name]",
-      "someAppSetting": "Test app setting",
+      "someAppSetting": "Test app settings",
       "sku": "Free",
+      "skuName": "Standard",
       "workerSize":"0",
       "testUri": "http://azure.microsoft.com/en-us/status/feed/",
       "eventHubSku":"Standard",
@@ -162,7 +190,6 @@
             }
         }
       },
-  
       {
         "type": "Microsoft.Web/connections",
         "apiVersion": "2016-06-01",
@@ -310,6 +337,7 @@
           }
         }
       },
+   
       {
         "apiVersion": "2014-06-01",
         "name": "[parameters('hostingPlanName')]",
@@ -369,7 +397,111 @@
             }
           }
         ]
+      },
+      {
+        "type": "Microsoft.Storage/storageAccounts",
+        "apiVersion": "2018-02-01",
+        "name": "[variables('storageacountname')]",
+        "location": "[parameters('location')]",
+        "tags": {
+            "displayName": "[variables('storageacountname')]"
+        },
+        "sku": {
+            "name": "Standard_LRS"
+        },
+        "kind": "Storage",
+        "properties": {},
+        "resources": [
+            {
+                "type": "blobServices/containers",
+                "apiVersion": "2018-03-01-preview",
+                "name": "[concat('default/', variables('containerName'))]",
+                "dependsOn": [
+                  "[variables('storageacountname')]",
+                  "[resourceId('Microsoft.Web/connections', variables('connections_azureloganalyticsdatacollector_name'))]",
+                  "[resourceId('Microsoft.Web/connections', variables('connections_eventhubs_name'))]",
+                  "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]",
+                  "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubNamespaceName'))]",
+                  "[resourceId('Microsoft.EventHub/Namespaces/EventHubs', variables('eventHubNamespaceName'), variables('eventHubName'))]",
+                  "[concat('Microsoft.Web/serverFarms/', parameters('hostingPlanName'))]",
+                  "[concat('Microsoft.Web/Sites/', parameters('siteName'))]"
+                  
+                ],
+                "properties": {
+                    "publicAccess": "None"
+                }
+            }
+        ]
+    },
+      {
+        "type": "Microsoft.KeyVault/vaults",
+        "name": "[parameters('keyVaultName')]",
+        "apiVersion": "2018-02-14",
+        "location":"[parameters('location')]",
+        "dependsOn": [
+
+          "[resourceId('Microsoft.Web/connections', variables('connections_azureloganalyticsdatacollector_name'))]",
+          "[resourceId('Microsoft.Web/connections', variables('connections_eventhubs_name'))]",
+          "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]",
+          "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubNamespaceName'))]",
+          "[resourceId('Microsoft.EventHub/Namespaces/EventHubs', variables('eventHubNamespaceName'), variables('eventHubName'))]",
+          "[concat('Microsoft.Web/serverFarms/', parameters('hostingPlanName'))]",
+          "[concat('Microsoft.Web/Sites/', parameters('siteName'))]"
+        ],
+        "properties": {
+            "enabledForDeployment": "[variables('enabledForDeployment')]",
+            "enabledForDiskEncryption": "[variables('enabledForDiskEncryption')]",
+            "enabledForTemplateDeployment": "[variables('enabledForTemplateDeployment')]",
+            "tenantId": "[variables('tenantId')]",
+            "accessPolicies": [
+                {
+                 
+                    "objectId": "[parameters('objectId')]",                   
+                    "tenantId": "[variables('tenantId')]",
+                    "permissions": {
+                        "keys": "[variables('keysPermissions')]",
+                        "secrets": "[variables('secretsPermissions')]"
+                    }
+                }
+            ],
+            "sku": {
+                "name": "[variables('skuName')]",
+                "family": "A"
+            },
+            "networkAcls": {
+                "value": {
+                    "defaultAction": "Allow",
+                    "bypass": "AzureServices"
+                }
+            }
+        }
+    },
+    {
+        "type": "Microsoft.KeyVault/vaults/secrets",
+        "name": "[concat(parameters('keyVaultName'), '/', variables('secretName'))]",
+        "apiVersion": "2018-02-14",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+            "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+        ],
+        "properties": {
+            "value": "tempEventHubConnectionValue"
+        }
+      },
+      {
+        "type": "Microsoft.KeyVault/vaults/secrets",
+        "name": "[concat(parameters('keyVaultName'), '/', variables('secretNameTwo'))]",
+        "apiVersion": "2018-02-14",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+            "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+        ],
+        "properties": {
+            "value": "tempBlobStoragePrimaryKeyValue"
+        }
       }
+      
+     
 
     ]
 }
