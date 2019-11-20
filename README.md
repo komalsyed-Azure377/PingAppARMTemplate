@@ -1,4 +1,3 @@
-
 # Ping App ARM Template 
 This repo contains the ARM Template for all the resources required for the PingConsole or .NET Core App. It creates an Event Hub, KeyVault, Storage Account, Log Analytics Workspace, and Logic App which pulls all the ping data from event hub into a log analytics workspace. This demo shows that you can use the Azure Deploy Button without a custom Azure Resource Manager template (azuredeploy.json).
 
@@ -62,7 +61,7 @@ Once the Linux VM is setup the next steps will show you how to link the VM to th
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/16.5.png" >
 When the above runs, a new VM will be created in the resource group specified, copy the details of the newly created VM in a seperate file</br>
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/18.png" >
-<b>Step 20:</b>In this next step assign an identity to the VM as shown below by running the following command, after the above has successfully run in the Azure CLI, run the following in the same Azure CLI, when the following has successfully run, save the details in a seperate file to be used in the next step</br>
+<b>Step 20:</b> In this next step assign an identity to the VM as shown below by running the following command, after the above has successfully run in the Azure CLI, run the following in the same Azure CLI, when the following has successfully run, save the details in a seperate file to be used in the next step</br>
 <b>
 az vm identity assign --name NameOfYourVirtualMachine --resource-group YourResourceGroupName</br>
 
@@ -73,7 +72,7 @@ az vm identity assign --name NameOfYourVirtualMachine --resource-group YourResou
 az keyvault set-policy --name 'YourKeyVaultName' --object-id VMSystemAssignedIdentity --secret-permissions get list
 </b>
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/19.5.png" >
-<b>Step 22:</b> Now that you have the VM setup in Azure along with the necessary resources to run PingUtility on an Azure based VM, let's download the PingAsync Utility application through the following steps. Open a <b> Windows Powershell</b> in Administrator mode as shown below, then run the following command in Windows Powershell: </br><b> ssh azureuser@PublicIpAddress </b> </br>
+<b>Step 22:</b> Now that you have the VM setup in Azure along with the necessary resources to run PingUtility on an Azure based VM, let's download the PingAsync Utility application through the following steps. Open a <b> Windows Powershell</b> in Administrator mode as shown below (or you can carry the same in <b>Azure CLI</b> the same session - there is no difference!), then run the following command in Windows Powershell: </br><b> ssh azureuser@PublicIpAddress </b> </br>
 The following shows how to access your Azure subscriptions in a Windown Powershell command prompt, run the <b>az login </b> command and select your subscription to access the VM - (in case you have multiple subscriptions):</br>
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/20.5.png" >
 To access the VM, if it is a new VM created through the process in the previous steps, you might need to reset the password for the '<b>azureuser</b>' login name from the Azure poral. </br>
@@ -106,13 +105,13 @@ $ echo "deb https://raw.githubusercontent.com/komalsyed-Azure377/pingasynctool/m
 $ sudo apt-get update</br>
 $ sudo apt-get install pingasync</br>
 $ export PING_HOME=/opt/ksyed/pingtool/PingAsync.dll</br>
-$ sudo dotnet $PING_HOME</br>
-</b>
+<b> At this stage the Ping Utilty is installed in your system ready to be used! </b></br>
+
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/26.png" >
 
-<b>Your system has the Ping Utilty running successfully! </b></br>
 
-<b>Step 25:</b> Changing the PingUtilty is shown below. In order to change the configuration for the Ping Utility being run navigate to the <b>appsettings.json</b> file by writing the command '<b>cd /opt/ksyed/pingtool</b>' in the same session above and then type the command  <b>sudo vim appsettings.json</b> will open the configuration file for you to change various parameters as shown below</br>
+
+<b>Step 25:</b> Changing the configuration for the PingUtilty is shown below - we will require all the information copied seperately in the previous steps. In order to change the configuration for the Ping Utility being run navigate to the <b>appsettings.json</b> file by writing the command '<b>cd /opt/ksyed/pingtool</b>' in the same session above and then type the command  <b>sudo vim appsettings.json</b> will open the configuration file for you to change various parameters as shown below</br>
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/27.png" >
 The configuration has 5 elements which need to be changed according to resources in your enviornment and VM setup.</br>
 1. The first element required is the <b>Key-Vault DNS name</b> saved in a seperate file in Step 15 above</br>
@@ -124,6 +123,23 @@ The configuration has 5 elements which need to be changed according to resources
 7. line 7 explains the purpose of the SELECTED_IP_COLUMN which is a string in the format _IP_COLUMNX where X is the column for the ip address value in the uploaded file - you can skip this explanation if your IP address is the first column for a csv file, if it is excel file then this should be set to _IP_COLUMN1 for e.g.</br>
 8. line 8 again just explains that if the file has been uploaded to blob to set the FILE_LOCATION BLOB value to true, otherwise set it to true for a file placed in LOCAL_FILE_PATH on the VM.</br>
 
+Navigate out of this file after having made the changes above and saving your file by pressing Esc and typing ":x" in the console, this will save your data and close the file, taking you back to the command line
+</b>
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/28.png" >
 </br>
+
+<b>Step 26:</b> Uploading a sample csv file to blob storage account in the Container pointed to in Step 14, the following walks you through to upload a csv from your local system to blob
+<img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/29.png" >
+</br>
+
+<b>Step 27:</b> Your system is ready to be used type the following in the same Windows Powershell or AzureCLI that you have been using above and type the following </br>
+<b>
+$ sudo dotnet $PING_HOME</br>
+</b>
+<img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/30.png" >
+<b>Your system has the Ping Utilty running successfully!</b></br>
+
+
+
+
 
