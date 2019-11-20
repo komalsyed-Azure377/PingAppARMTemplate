@@ -110,7 +110,7 @@ $ export PING_HOME=/opt/ksyed/pingtool/PingAsync.dll</br>
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/26.png" >
 
 <b>Step 25:</b> Changing the configuration for the PingUtilty is shown below - we will require all the information copied seperately in the previous steps. In order to change the configuration for the Ping Utility being run navigate to the <b>appsettings.json</b> file by writing the command '<b>cd /opt/ksyed/pingtool</b>' in the same session above and then type the command  <b>sudo vim appsettings.json</b> will open the configuration file for you to change various parameters as shown below</br>
-<img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/27.png" >
+
 The configuration has 5 elements which need to be changed according to resources in your enviornment and VM setup.</br>
 1. The first element required is the <b>Key-Vault DNS name</b> saved in a seperate file in Step 15 above</br>
 2. The second element required is the <b>EventHub Name</b> saved in a seperate file in Step 11 above</br>
@@ -123,6 +123,7 @@ The configuration has 5 elements which need to be changed according to resources
 
 Navigate out of this file after having made the changes above and saving your file by pressing Esc and typing ":x" in the console, this will save your data and close the file, taking you back to the command line
 </b>
+<img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/27.png" >
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/28.png" >
 </br>
 
