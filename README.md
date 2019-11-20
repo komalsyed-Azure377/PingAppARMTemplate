@@ -68,7 +68,7 @@ az vm identity assign --name NameOfYourVirtualMachine --resource-group YourResou
 
 </b>
 <img src="https://komalsandboxdiag.blob.core.windows.net/pingarmtemplatereadmefiles/19.png" >
-<b>Step 21:</b> In this last step related to key-vault and VM pairing, give your Key Vault permission to the Virtual Machine identity you created in the previous step by running the following command as shown below in the same Azure CLI window, replace the KeyVault name and the object Id with values obtained from the previous steps</br>
+<b>Step 21:</b> In this last step related to key-vault and VM pairing, give your Key Vault permission to the Virtual Machine identity you created in the previous step by running the following command as shown below in the same Azure CLI window, replace the KeyVault name and the object Id with "systemAssignedIdentity" value obtained from the previous steps</br>
 <b>
 az keyvault set-policy --name 'YourKeyVaultName' --object-id VMSystemAssignedIdentity --secret-permissions get list
 </b>
